@@ -1,0 +1,9 @@
+:scheduler:
+  :schedule:
+    late_notifier:
+      cron: '0 0 * * * *'   
+      class: LateNotifierJob
+      :schedule:
+    reminder:
+      cron: '0 0 * * * *'   
+      class: ReminderJob

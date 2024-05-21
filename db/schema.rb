@@ -10,9 +10,69 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_05_18_161431) do
+ActiveRecord::Schema[7.1].define(version: 2024_05_20_123159) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "authors", force: :cascade do |t|
+    t.string "name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "books", force: :cascade do |t|
+    t.string "title"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "shelf_id"
+    t.bigint "author_id"
+    t.integer "stock"
+    t.float "rating"
+  end
+
+  create_table "books_categories", force: :cascade do |t|
+    t.bigint "book_id", null: false
+    t.bigint "category_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["book_id"], name: "index_books_categories_on_book_id"
+    t.index ["category_id"], name: "index_books_categories_on_category_id"
+  end
+
+  create_table "categories", force: :cascade do |t|
+    t.string "name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "orders", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "book_id"
+    t.bigint "user_id"
+    t.datetime "return_date"
+    t.integer "status", default: 0
+  end
+
+  create_table "reviews", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.text "body"
+    t.bigint "user_id"
+    t.bigint "order_id", null: false
+    t.float "rating"
+    t.bigint "book_id", null: false
+    t.index ["book_id"], name: "index_reviews_on_book_id"
+    t.index ["order_id"], name: "index_reviews_on_order_id"
+  end
+
+  create_table "shelves", force: :cascade do |t|
+    t.string "name"
+    t.integer "max_capacity"
+    t.integer "current_capacity"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
 
   create_table "users", force: :cascade do |t|
     t.string "email", default: "", null: false
@@ -26,11 +86,17 @@ ActiveRecord::Schema[7.1].define(version: 2024_05_18_161431) do
     t.string "unconfirmed_email"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.boolean "admin", default: false, null: false
     t.string "jti", null: false
+    t.boolean "is_admin", default: false
+    t.integer "otp_code"
+    t.boolean "is_verified", default: false
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["jti"], name: "index_users_on_jti", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  add_foreign_key "books_categories", "books"
+  add_foreign_key "books_categories", "categories"
+  add_foreign_key "reviews", "books"
+  add_foreign_key "reviews", "orders"
 end
