@@ -17,28 +17,6 @@ class BooksController < ApplicationController
     render json: @book
   end
 
-  #def borrow
-   # @book = Book.find(params[:book_id])
-   # @last = current_user.orders.last
-    #if @book.stock > 0 && @last.status != "accepted" && @last.status != "pending"
-      #@order = Order.create(book_id: @book.id, status: "pending", user_id: current_user.id, return_date: Date.current)
-     # if @order.save
-      #  render json: @order
-     # else
-     #   render json: @order.errors, status: :unprocessable_entity
-     # end
-    #elsif @book.stock <= 0
-     # error = "#{@book.title} Book is out of stock"
-     # render json: error
-    #elsif @last.status == "accepted"
-     # error = "Please return your book first"
-     # render json: error
-   # else
-   # error = "Your past order is still pending"
-    #  render json: error
- #  end
- # end
-
 
   def new
     @book = Book.new
@@ -50,16 +28,19 @@ class BooksController < ApplicationController
   def create
     @book = Book.new(book_params)
       @shelf = @book.shelf
-
-        if  !@shelf.nil? && @shelf.current_capacity >= @shelf.max_capacity
+        if  !@shelf.nil? && @shelf.current_capacity == @shelf.max_capacity
           @book.delete
-          error = "Shelf is out of storage"
+          error = "Shelf #{@shelf.name} is out of storage"
+          render json: error
+        elsif  !@shelf.nil? && @shelf.current_capacity + @book.stock > @shelf.max_capacity
+          @book.delete
+          error = "Shelf #{@shelf.name} cant fit all these books"
           render json: error
         else
           if @book.save
             @shelf = @book.shelf
             @now = @shelf.current_capacity
-            @shelf.update(current_capacity: @now + 1)
+            @shelf.update(current_capacity: @now + @book.stock)
             render json: @book, status: :created, location: @book
           else
             render json: @book.errors, status: :unprocessable_entity
@@ -68,16 +49,58 @@ class BooksController < ApplicationController
   end
 
   def update
+    @old_shelf = @book.shelf
+    if params[:book][:shelf_id].present?
+      @new_shelf = Shelf.find(params[:book][:shelf_id])
+    end
+    if params[:book][:stock].present?
+      @old_stock = @book.stock
+    end
 
-      if @book.update(book_params)
-        render json: @book
+    if @new_shelf == @old_shelf
+      error = "Book #{@book.title} is already on shelf #{@new_shelf.name}"
+      render json: error
+    else
+      if !@new_shelf.nil? && @new_shelf.current_capacity == @new_shelf.max_capacity
+        error = "Shelf #{@new_shelf.name} is out of storage"
+        render json: error
+      elsif  !@new_shelf.nil? && @new_shelf.current_capacity + @book.stock > @new_shelf.max_capacity
+        error = "Shelf #{@new_shelf.name} cant fit all these books"
+        render json: error
+        elsif params[:book][:stock].present? && params[:book][:shelf_id].present? &&
+           params[:book][:stock] + Shelf.find(params[:book][:shelf_id]).current_capacity > Shelf.find(params[:book][:shelf_id]).max_capacity
+           error = "Shelf #{Shelf.find(params[:book][:shelf_id]).name} cant fit all these books"
+           render json: error
+           elsif params[:book][:stock].present? && @book.shelf.current_capacity - @old_stock + params[:book][:stock] > @book.shelf.max_capacity
+            error = "Shelf #{@book.shelf.name} cant fit all these books"
+           render json: error
       else
-        render json: {message: "error"}
+        if @book.update(book_params)
+          if  @new_shelf.present? && @old_stock.present?
+            @old_shelf.update(current_capacity: @book.shelf.current_capacity - @old_stock)
+            @old_shelf.update(current_capacity: @book.shelf.current_capacity + @book.stock)
+            @new_shelf.update(current_capacity: @new_shelf.current_capacity + @book.stock)
+            @old_shelf.update(current_capacity: @old_shelf.current_capacity - @book.stock)
+          elsif @new_shelf.present?
+            @new_shelf.update(current_capacity: @new_shelf.current_capacity + @book.stock)
+            @old_shelf.update(current_capacity: @old_shelf.current_capacity - @book.stock)
+          elsif @old_stock.present?
+            @book.shelf.update(current_capacity: @book.shelf.current_capacity - @old_stock)
+            @book.shelf.update(current_capacity: @book.shelf.current_capacity + @book.stock)
+          end
+          render json: @book
+        else
+          render json: {message: "error"}
+        end
+      end
     end
   end
 
   def destroy
+     @shelf = @book.shelf
+     @book_stock = @book.stock
     if @book.destroy!
+      @shelf.update(current_capacity: @shelf.current_capacity - @book_stock)
       render json: {message: "success"}
     end
   end

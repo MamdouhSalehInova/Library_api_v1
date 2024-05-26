@@ -9,7 +9,7 @@ class Users::SessionsController < Devise::SessionsController
     @user = User.find_by(params[:email])
     self.resource = warden.authenticate!(auth_options)
     @user.update(otp_code: SecureRandom.rand(00000..99999))
-    UserMailer.otp_send(@user).deliver_now
+    SendOtpService.new(@user).call
     render json: {message: "Otp Sent To #{@user.email}"}
   end
 

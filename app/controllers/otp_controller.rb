@@ -2,13 +2,11 @@ class OtpController < ApplicationController
   include RackSessionsFix
 
 
+
   def verify
-    @user = User.find_by(email: params[:otp][:email])
+    @user = current_user
     @otp_attempt = params[:otp][:otp_attempt]
-    if @otp_attempt ==  @user.otp_code
-      @user.update(is_verified: true)
-      sign_in(@user)
-      @user.update(is_verified: true)
+    if VerifyOtpService.new(@user, @otp_attempt).call
       render json: {
         status: {code: 200, message: 'Logged in sucessfully.'},
         data: UserSerializer.new(@user)
@@ -16,6 +14,7 @@ class OtpController < ApplicationController
     else
       render json: "Wrong OTP"
     end
+
   end
 
   def otp_params

@@ -5,8 +5,11 @@ class PasswordResetController < ApplicationController
     if @user.present?
       @user.update(reset_password_token: SecureRandom.hex )
       PasswordMailer.reset(@user).deliver_now
+      render json: {message: "Password reset instruction sent to #{@user.email}"}
+    else
+      render json: {message: "Invalid email"}
     end
-    render json: @user.id
+
   end
 
   def edit
@@ -14,6 +17,9 @@ class PasswordResetController < ApplicationController
     @user.update(password: params[:user][:password])
     if @user.save
       PasswordMailer.changed(@user).deliver_now
+      render json: {message: "Password updated successfully"}
+    else
+      render json: @user.errors
     end
 
   end

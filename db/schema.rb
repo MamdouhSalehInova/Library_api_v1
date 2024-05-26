@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_05_20_123159) do
+ActiveRecord::Schema[7.1].define(version: 2024_05_24_193813) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -26,8 +26,9 @@ ActiveRecord::Schema[7.1].define(version: 2024_05_20_123159) do
     t.datetime "updated_at", null: false
     t.bigint "shelf_id"
     t.bigint "author_id"
-    t.integer "stock"
-    t.float "rating"
+    t.integer "stock", default: 1
+    t.index ["author_id"], name: "index_books_on_author_id"
+    t.index ["shelf_id"], name: "index_books_on_shelf_id"
   end
 
   create_table "books_categories", force: :cascade do |t|
@@ -59,19 +60,17 @@ ActiveRecord::Schema[7.1].define(version: 2024_05_20_123159) do
     t.datetime "updated_at", null: false
     t.text "body"
     t.bigint "user_id"
-    t.bigint "order_id", null: false
     t.float "rating"
     t.bigint "book_id", null: false
     t.index ["book_id"], name: "index_reviews_on_book_id"
-    t.index ["order_id"], name: "index_reviews_on_order_id"
   end
 
   create_table "shelves", force: :cascade do |t|
     t.string "name"
     t.integer "max_capacity"
-    t.integer "current_capacity"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "current_capacity", default: 0
   end
 
   create_table "users", force: :cascade do |t|
@@ -98,5 +97,4 @@ ActiveRecord::Schema[7.1].define(version: 2024_05_20_123159) do
   add_foreign_key "books_categories", "books"
   add_foreign_key "books_categories", "categories"
   add_foreign_key "reviews", "books"
-  add_foreign_key "reviews", "orders"
 end

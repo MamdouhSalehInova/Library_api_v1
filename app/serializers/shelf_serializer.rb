@@ -1,4 +1,4 @@
 class ShelfSerializer < ActiveModel::Serializer
-  attributes  :name
+  attributes  :name, :current_capacity, :max_capacity
 
 end

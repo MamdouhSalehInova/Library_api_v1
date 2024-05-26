@@ -15,14 +15,16 @@ class ReviewsController < ApplicationController
   # GET /reviews/1
   # GET /reviews/1.json
   def show
+    @review = Review.find(params[:id])
+    render json: @review
   end
 
   # POST /reviews
   # POST /reviews.json
   def create
     @user = current_user
-    @book = Book.find(params[:book_id])
-    if @user.orders.where(book_id: @book.id, status: "accepted").present?
+    @book = Book.find(params[:review][:book_id])
+    if @user.orders.where(book_id: @book.id, status: 3).present?
       @review = Review.new(review_params)
       @review.update(user_id: @user.id)
       @review.update(book_id: @book.id)
@@ -32,7 +34,7 @@ class ReviewsController < ApplicationController
         render json: @review.errors, status: :unprocessable_entity
       end
     else
-      error= "you must've had ordered this book before to write a review about it"
+      error= "you must've had ordered this book and returned it before to write a review about it"
       render json: error
     end
 
@@ -41,17 +43,28 @@ class ReviewsController < ApplicationController
   # PATCH/PUT /reviews/1
   # PATCH/PUT /reviews/1.json
   def update
-    if @review.update(review_params)
-      render :show, status: :ok, location: @review
+    if @review.user.email == current_user.email
+      if @review.update(review_params)
+        render json: @review, status: :ok, location: @review
+      else
+        render json: @review.errors, status: :unprocessable_entity
+      end
     else
-      render json: @review.errors, status: :unprocessable_entity
+      render json: {message: "You cant edit other's reviews"}
     end
+
   end
 
   # DELETE /reviews/1
   # DELETE /reviews/1.json
   def destroy
-    @review.destroy!
+    if @review.user.email == current_user.email
+      @review.destroy!
+      render json: {message: "Review deleted succefully"}
+    else
+      error = "you cant delete other's reviews"
+      render json: error
+    end
   end
 
   private
@@ -62,6 +75,6 @@ class ReviewsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def review_params
-      params.require(:review).permit(:body,:user_id, :book_id)
+      params.require(:review).permit(:body,:user_id, :book_id, :rating)
     end
 end

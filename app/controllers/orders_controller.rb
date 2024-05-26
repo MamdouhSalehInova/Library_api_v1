@@ -1,18 +1,12 @@
 class OrdersController < ApplicationController
   before_action :set_order, only: %i[ show edit update destroy ]
-  before_action :admin?, only: [ :index ,:accept, :reject, :late, :edit, :destroy]
-  before_action :authenticate_user!, only: [:my_orders, :create]
+  before_action :authenticate_user!, only: [:my_orders, :create, :update]
+  before_action :admin?, only: [ :index ,:accept, :reject, :return, :late, :edit, :destroy, :update, :show]
   before_action :verified?
 
 
   respond_to :json
 
-  def admin?
-    unless current_user and current_user.admin?
-      error = "You need to sign in as an admin for access"
-      render json: error
-    end
-  end
   # GET /orders or /orders.json
   def index
     @orders = Order.all
@@ -29,40 +23,44 @@ class OrdersController < ApplicationController
 
   def my_orders
     @orders = current_user.orders
-    render json: @orders
+    render json: @orders.order(:id), each_serializer: OrderSerializer
   end
 
   def accept
-    @order = Order.find(params[:order][:order_id])
+    @order = Order.find(params[:order_id])
     @book = Book.find_by_id(@order.book_id)
     @user = User.find_by(id: @order.user_id)
-    if @book.stock > 0
+    @shelf = @book.shelf
+    if @book.stock > 0 && @order.present?
+      @shelf.update(current_capacity: @shelf.current_capacity - 1)
       @order.update(status: 1)
       @book.update(stock: @book.stock - 1)
       render json: {message: "Accepted Order"}
       UserMailer.accepted(@user).deliver_later
-      else
+    else
         error = "Out of stock for #{@book.title}"
         render json: error
     end
   end
+
+
   def reject
-    @order = Order.find(params[:order][:order_id])
+    @order = Order.find(params[:order_id])
     @user = User.find_by(id: @order.user_id)
     @order.update(status: 2)
     render json: {message: "Rejected Order"}
     UserMailer.rejected(@user).deliver_later
   end
 
+
+
   def return
-    @order = Order.find(params[:order][:order_id])
-    if @order.status == 4
-      @order.update(return_date: Date.current)
-    end
+    @order = Order.find(params[:order_id])
     @user = @order.user
     @order.update(status: 3)
     @order.save
     @book = Book.find_by_id(@order.book_id)
+    @book.update(stock: @book.stock + 1)
     @shelf = Shelf.find_by(id: @book.shelf_id)
     @shelf.update(current_capacity: @shelf.current_capacity + 1)
     UserMailer.returned(@user).deliver_later
@@ -88,16 +86,16 @@ class OrdersController < ApplicationController
   def create
     @order = Order.new(order_params)
     @book = Book.find(params[:order][:book_id])
-    @check_accepted = current_user.orders.where(status: 1)
-    @check_pending = current_user.orders.where(status: 0)
+    @check_accepted = current_user.orders.where(status: 1).last
+    @check_pending = current_user.orders.where(status: 0).last
     @order.update(user_id: current_user.id, book_id: @book.id )
     @admins = User.where(is_admin: true)
-    if @book.stock > 0 && @check_accepted.empty? && @check_pending.empty?
+    if @book.stock > 0 && !@check_accepted.present? && !@check_pending.present?
      if @order.save
         @order.update(status: 0)
         render json: @order
         @admins.each do |admin|
-          AdminMailer.new_order(admin).deliver_later
+        AdminMailer.new_order(admin).deliver_later
         end
      else
         render json: @order.errors, status: :unprocessable_entity
@@ -106,15 +104,19 @@ class OrdersController < ApplicationController
       @order.delete
       error = "#{@book.title} Book is out of stock"
       render json: error
-    elsif !@check_accepted.empty?
+    elsif @check_accepted.present?
       @order.delete
       error = "Please return your book first"
-      render json: error
-    elsif !@check_pending.empty?
+      render json: {measage: error, order:  OrderSerializer.new(@check_accepted)}
+    elsif @check_pending.present?
       @order.delete
       Order.where(status: nil).delete_all
-    error = "Your past order is still pending"
-      render json: error
+      error = "Your past order is still pending"
+      render json: {measage: error, order:  OrderSerializer.new(@check_pending)}
+    elsif @order.return_date <= Date.current
+      @order.delete
+      error = "Please select a valid return date"
+      render json: {measage: error, order:  OrderSerializer.new(@order)}
    end
   end
 

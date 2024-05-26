@@ -18,7 +18,7 @@ class AuthorsController < ApplicationController
     @author = Author.find(params[:id])
     @books = Book.where(author_id: @author.id)
 
-    render json: {@author.name => @books}
+    render json: {Author: @author.name, Books: @books}
   end
 
   # GET /authors/new
@@ -44,7 +44,7 @@ class AuthorsController < ApplicationController
   def update
 
       if @author.update(author_params)
-        render json: @author, status: :ok, location: @author
+        render json: {author: @author, status: :ok, message: "author updated successfully" }
       else
         render json: @author.errors, status: :unprocessable_entity
       end
@@ -54,7 +54,7 @@ class AuthorsController < ApplicationController
   # DELETE /authors/1 or /authors/1.json
   def destroy
     if @author.destroy!
-      render json: @author, status: :ok, location: @author
+      render json: {author: @author, status: :ok, message: "author deleted successfully" }
       else
         render json: @author.errors, status: :unprocessable_entity
       end

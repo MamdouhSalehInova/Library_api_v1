@@ -4,7 +4,7 @@ class ApplicationController < ActionController::API
   def admin?
     unless current_user and current_user.is_admin?
       error = "no access"
-      render json: error
+      render json: {message: error}
     end
   end
 
