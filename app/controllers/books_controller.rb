@@ -57,6 +57,7 @@ class BooksController < ApplicationController
       @old_stock = @book.stock
     end
 
+    render json: 'error' if @new_shelf == @old_shelf
     if @new_shelf == @old_shelf
       error = "Book #{@book.title} is already on shelf #{@new_shelf.name}"
       render json: error

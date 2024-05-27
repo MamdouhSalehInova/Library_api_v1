@@ -1,7 +1,7 @@
 class Category < ApplicationRecord
-  #has_many :books_categories, dependent: :delete_all
-  #has_many :books, through: :books_categories, dependent: :delete_all
-  has_and_belongs_to_many :books
+  has_many :books_categories
+  has_many :books, through: :books_categories
+  #has_and_belongs_to_many :books
 
   validates :name, presence: true, uniqueness: true
 
