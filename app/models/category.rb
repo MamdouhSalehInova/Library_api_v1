@@ -1,5 +1,5 @@
 class Category < ApplicationRecord
-  has_many :books_categories
+  has_many :books_categories, dependent: :destroy
   has_many :books, through: :books_categories
   #has_and_belongs_to_many :books
 
