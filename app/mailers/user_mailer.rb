@@ -5,21 +5,22 @@ class UserMailer < ApplicationMailer
   #
   #   en.user_mailer.accepted.subject
   #
-  def accepted(user)
+  def accepted(user, book)
     @user = user
+    @book = book
     mail to: @user.email, subject: "accepted"
   end
 
-  def rejected(user)
+  def rejected(user, book)
     @user = user
-
+    @book = book
     mail to: @user.email, subject: "rejected"
   end
 
-  def returned(user)
+  def returned(user, book)
     @user = user
-
-    mail to: @user.email, subject: "Hope you enjoyed the book"
+    @book = book
+    mail to: @user.email, subject: "Returned Book"
   end
 
   def otp_send(user)

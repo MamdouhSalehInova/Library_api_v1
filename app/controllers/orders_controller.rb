@@ -3,17 +3,12 @@ class OrdersController < ApplicationController
   before_action :authenticate_user!, only: [:my_orders, :create, :update]
   before_action :admin?, only: [ :index ,:accept, :reject, :return, :late, :edit, :destroy, :update, :show]
   before_action :verified?
-
-
   respond_to :json
 
-  # GET /orders or /orders.json
   def index
     @orders = Order.all
     render json: @orders
   end
-
-
 
   def late
     @orders = Order.all
@@ -36,7 +31,7 @@ class OrdersController < ApplicationController
       @order.update(status: 1)
       @book.update(is_available: false)
       render json: {message: "Accepted Order"}
-      UserMailer.accepted(@user).deliver_later
+      UserMailer.accepted(@user, @book).deliver_later
     else
         error = "Out of stock for #{@book.title}"
         render json: error
@@ -48,8 +43,9 @@ class OrdersController < ApplicationController
     @order = Order.find(params[:order_id])
     @user = User.find_by(id: @order.user_id)
     @order.update(status: 2)
+    @book = Book.find_by_id(@order.book_id)
     render json: {message: "Rejected Order"}
-    UserMailer.rejected(@user).deliver_later
+    UserMailer.rejected(@user, @book).deliver_later
   end
 
 
@@ -62,26 +58,19 @@ class OrdersController < ApplicationController
     @book.update(is_available: true)
     @shelf = Shelf.find_by(id: @book.shelf_id)
     @shelf.update(current_capacity: @shelf.current_capacity + 1)
-    UserMailer.returned(@user).deliver_later
+    UserMailer.returned(@user, @book).deliver_later
     render json: {message: "Returned book to shelf"}
   end
 
-  # GET /orders/1 or /orders/1.json
   def show
     @order = Order.find(params[:id])
     render json: {order: OrderSerializer.new(@order), user: UserSerializer.new(@order.user), book: Book.find(@order.book_id).title, stock: Book.find(@order.book_id).stock}
   end
 
-  # GET /orders/new
   def new
     @order = Order.new
   end
 
-  # GET /orders/1/edit
-  def edit
-  end
-
-  # POST /orders or /orders.json
   def create
     @user = current_user
     @book = Book.find(params[:order][:book_id])
@@ -101,7 +90,7 @@ class OrdersController < ApplicationController
     end
   end
 
-  # PATCH/PUT /orders/1 or /orders/1.json
+
   def update
       if @order.update(order_params)
         render json: {message: "success"}
@@ -110,19 +99,17 @@ class OrdersController < ApplicationController
       end
   end
 
-  # DELETE /orders/1 or /orders/1.json
   def destroy
     @order.destroy!
     render json: {message: "success"}
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
+
     def set_order
       @order = Order.find(params[:id])
     end
 
-    # Only allow a list of trusted parameters through.
     def order_params
       params.require(:order).permit(:status,:user_id, :book_id, :return_date)
     end
