@@ -30,7 +30,6 @@ class BooksController < ApplicationController
   end
 
   def update
-    @old_shelf = @book.shelf
     if params[:book][:shelf_id].present?
       @new_shelf = Shelf.find(params[:book][:shelf_id])
     end
