@@ -1,7 +1,7 @@
 class OrdersController < ApplicationController
-  before_action :set_order, only: %i[ show edit update destroy ]
+  before_action :set_order, only: %i[ show update destroy ]
   before_action :authenticate_user!, only: [:my_orders, :create, :update]
-  before_action :admin?, only: [ :index ,:accept, :reject, :return, :late, :edit, :destroy, :update, :show]
+  before_action :admin?, only: [ :index ,:accept, :reject, :return, :late, :destroy, :update, :show]
   before_action :verified?
   respond_to :json
 

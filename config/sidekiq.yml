@@ -7,8 +7,3 @@
     reminder:
       cron: '0 0 * * * *'   
       class: ReminderJob
-      :schedule:
-    shelf_update:
-      cron: '0 0 * * * *'   
-      class: ShefUpdateJob
-       

@@ -25,6 +25,7 @@ class BooksController < ApplicationController
         render json: {message: "#{@book.shelf.name} is out of storage"}
        else
         if @book.save
+          
             render json: @book, status: :created, location: @book
           else
             render json: @book.errors, status: :unprocessable_entity
