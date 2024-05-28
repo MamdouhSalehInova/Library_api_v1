@@ -25,9 +25,7 @@ class OrdersController < ApplicationController
     @order = Order.find(params[:order_id])
     @book = Book.find_by_id(@order.book_id)
     @user = User.find_by(id: @order.user_id)
-    @shelf = @book.shelf
     if @book.is_available && @order.present?
-      @shelf.update(current_capacity: @shelf.current_capacity - 1)
       @order.update(status: 1)
       @book.update(is_available: false)
       render json: {message: "Accepted Order"}
@@ -52,14 +50,18 @@ class OrdersController < ApplicationController
 
   def return
     @order = Order.find(params[:order_id])
+    @error = "Book was already returned to shelf" if @order.status == "returned"
+    @error = "you must have accepted this order to return it" if @order.status == "pending" || @order.status == "rejected"
+    if @error.present?
+      render json: @error
+    else
     @user = @order.user
     @order.update(status: 3)
     @book = Book.find_by_id(@order.book_id)
     @book.update(is_available: true)
-    @shelf = Shelf.find_by(id: @book.shelf_id)
-    @shelf.update(current_capacity: @shelf.current_capacity + 1)
     UserMailer.returned(@user, @book).deliver_later
     render json: {message: "Returned book to shelf"}
+    end
   end
 
   def show
