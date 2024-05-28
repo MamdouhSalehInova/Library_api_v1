@@ -13,7 +13,7 @@ class PasswordResetController < ApplicationController
   end
 
   def edit
-    @user = User.where(reset_password_token: params[:reset_password_token]).first
+    @user = User.find_by(reset_password_token: params[:reset_password_token])
     @user.update(password: params[:user][:password])
     if @user.save
       PasswordMailer.changed(@user).deliver_now

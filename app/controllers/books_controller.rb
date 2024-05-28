@@ -2,7 +2,7 @@ class BooksController < ApplicationController
   before_action :set_book, only: %i[ show update destroy ]
   before_action :authenticate_user!, except: [:show, :index]
   before_action :verified?
-  before_action :admin?, only: [ :destroy, :new, :create, :update]
+  before_action :admin?, only: [ :destroy, :create, :update]
 
   def index
     @books = Book.all.order(:title)
@@ -14,9 +14,6 @@ class BooksController < ApplicationController
     render json: @book
   end
 
-  def new
-    @book = Book.new
-  end
 
   def create
     @book = Book.new(book_params)
@@ -57,6 +54,7 @@ class BooksController < ApplicationController
   end
 
   private
+
     def set_book
       @book = Book.find(params[:id])
     end

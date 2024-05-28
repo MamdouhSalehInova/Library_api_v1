@@ -5,7 +5,7 @@ class UserMailerTest < ActionMailer::TestCase
     mail = UserMailer.accepted
     assert_equal "Accepted", mail.subject
     assert_equal ["to@example.org"], mail.to
-    assert_equal ["from@example.com"], mail.from
+    assert_equal ["railstest22@gmail.com"], mail.from
     assert_match "Hi", mail.body.encoded
   end
 
@@ -13,7 +13,7 @@ class UserMailerTest < ActionMailer::TestCase
     mail = UserMailer.rejected
     assert_equal "Rejected", mail.subject
     assert_equal ["to@example.org"], mail.to
-    assert_equal ["from@example.com"], mail.from
+    assert_equal ["railstest22@gmail.com"], mail.from
     assert_match "Hi", mail.body.encoded
   end
 

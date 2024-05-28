@@ -31,10 +31,8 @@ Rails.application.routes.draw do
   get 'new_order', to: "orders#create"
   post 'password/create', to: 'password_reset#create'
   post 'password/edit', to: 'password_reset#edit'
-  post 'password/create', to: 'password_reset#create'
-  post 'password/edit', to: 'password_reset#edit'
   post 'verify_otp', to: 'otp#verify'
-  post 'new_otp', to: 'otp#new'
+
 
 
   # Defines the root path route ("/")

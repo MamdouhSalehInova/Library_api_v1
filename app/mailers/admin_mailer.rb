@@ -1,4 +1,5 @@
 class AdminMailer < ApplicationMailer
+  default from: "railstest22@gmail.com"
   def new_order(admin)
     @admin = admin
     mail to: @admin.email, subject: "New Order"
