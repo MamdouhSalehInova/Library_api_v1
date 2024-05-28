@@ -4,23 +4,16 @@ class ReviewsController < ApplicationController
   before_action :authenticate_user!, only: [:create, :update, :destroy]
   before_action :verified?
 
-
-  # GET /reviews
-  # GET /reviews.json
   def index
     @reviews = Review.all
     render json: @reviews
   end
 
-  # GET /reviews/1
-  # GET /reviews/1.json
   def show
     @review = Review.find(params[:id])
     render json: @review
   end
 
-  # POST /reviews
-  # POST /reviews.json
   def create
     @user = current_user
     @book = Book.find(params[:review][:book_id])
@@ -40,8 +33,6 @@ class ReviewsController < ApplicationController
 
   end
 
-  # PATCH/PUT /reviews/1
-  # PATCH/PUT /reviews/1.json
   def update
     if @review.user.email == current_user.email
       if @review.update(review_params)
@@ -55,8 +46,6 @@ class ReviewsController < ApplicationController
 
   end
 
-  # DELETE /reviews/1
-  # DELETE /reviews/1.json
   def destroy
     if @review.user.email == current_user.email
       @review.destroy!
@@ -68,12 +57,11 @@ class ReviewsController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
+
     def set_review
       @review = Review.find(params[:id])
     end
 
-    # Only allow a list of trusted parameters through.
     def review_params
       params.require(:review).permit(:body,:user_id, :book_id, :rating)
     end

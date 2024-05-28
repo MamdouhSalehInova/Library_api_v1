@@ -6,7 +6,7 @@ class OrdersController < ApplicationController
   respond_to :json
 
   def index
-    @orders = Order.all
+    @orders = Order.all.order(:id)
     render json: @orders
   end
 
@@ -36,7 +36,6 @@ class OrdersController < ApplicationController
     end
   end
 
-
   def reject
     @order = Order.find(params[:order_id])
     @user = User.find_by(id: @order.user_id)
@@ -45,8 +44,6 @@ class OrdersController < ApplicationController
     render json: {message: "Rejected Order"}
     UserMailer.rejected(@user, @book).deliver_later
   end
-
-
 
   def return
     @order = Order.find(params[:order_id])
@@ -91,7 +88,6 @@ class OrdersController < ApplicationController
       end
     end
   end
-
 
   def update
       if @order.update(order_params)

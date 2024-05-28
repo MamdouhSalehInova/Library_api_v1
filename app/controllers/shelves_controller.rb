@@ -4,11 +4,8 @@ class ShelvesController < ApplicationController
   before_action :check_capacity, only: [:show]
   before_action :verified?
 
-
-
-  # GET /shelves or /shelves.json
   def index
-    @shelves = Shelf.all
+    @shelves = Shelf.all.order(:name)
     render json: @shelves
   end
 
@@ -19,51 +16,38 @@ class ShelvesController < ApplicationController
       render json: notice
     end
   end
-  # GET /shelves/1 or /shelves/1.json
+
   def show
     @shelf = Shelf.find(params[:id])
     @books = Book.where(shelf_id: @shelf.id)
     render json: {Shelf: ShelfSerializer.new(@shelf), Books: @shelf.books}
   end
 
-
-
-  # GET /shelves/new
   def new
     @shelf = Shelf.new
 
   end
 
-  # GET /shelves/1/edit
   def edit
   end
 
-  # POST /shelves or /shelves.json
   def create
     @shelf = Shelf.new(shelf_params)
-
-
-
       if @shelf.save
         render json: @shelf, status: :created, location: @shelf
       else
         render json: @shelf.errors, status: :unprocessable_entity
       end
-
   end
 
-  # PATCH/PUT /shelves/1 or /shelves/1.json
   def update
-
       if @shelf.update(shelf_params)
         render json: @shelf
       else
         render json: @shelf.errors, status: :unprocessable_entity
       end
-
   end
 
-  # DELETE /shelves/1 or /shelves/1.json
   def destroy
     if @shelf.destroy!
       render json: {message: "success"}
@@ -71,7 +55,7 @@ class ShelvesController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
+
     def set_shelf
       @shelf = Shelf.find(params[:id])
     end

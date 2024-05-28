@@ -1,8 +1,6 @@
 class OtpController < ApplicationController
   include RackSessionsFix
 
-
-
   def verify
     @user = current_user
     @otp_attempt = params[:otp][:otp_attempt]

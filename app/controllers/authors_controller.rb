@@ -1,11 +1,10 @@
 class AuthorsController < ApplicationController
-
   before_action :set_author, only: %i[ show edit update destroy ]
   before_action :admin?, only: [ :edit, :destroy, :new, :create, :update]
   before_action :verified?
 
   def index
-    @authors = Author.all
+    @authors = Author.all.order(:name)
     render json: @authors
   end
 
