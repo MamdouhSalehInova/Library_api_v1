@@ -17,7 +17,7 @@ class OrdersController < ApplicationController
 
   def late
     @orders = Order.all
-    @late_orders = @orders.where(status: 5)
+    @late_orders = @orders.where(status: 4)
     render json: @late_orders
   end
 
@@ -31,10 +31,10 @@ class OrdersController < ApplicationController
     @book = Book.find_by_id(@order.book_id)
     @user = User.find_by(id: @order.user_id)
     @shelf = @book.shelf
-    if @book.stock > 0 && @order.present?
+    if @book.is_available && @order.present?
       @shelf.update(current_capacity: @shelf.current_capacity - 1)
       @order.update(status: 1)
-      @book.update(stock: @book.stock - 1)
+      @book.update(is_available: false)
       render json: {message: "Accepted Order"}
       UserMailer.accepted(@user).deliver_later
     else
@@ -58,9 +58,8 @@ class OrdersController < ApplicationController
     @order = Order.find(params[:order_id])
     @user = @order.user
     @order.update(status: 3)
-    @order.save
     @book = Book.find_by_id(@order.book_id)
-    @book.update(stock: @book.stock + 1)
+    @book.update(is_available: true)
     @shelf = Shelf.find_by(id: @book.shelf_id)
     @shelf.update(current_capacity: @shelf.current_capacity + 1)
     UserMailer.returned(@user).deliver_later
@@ -84,40 +83,22 @@ class OrdersController < ApplicationController
 
   # POST /orders or /orders.json
   def create
-    @order = Order.new(order_params)
+    @user = current_user
     @book = Book.find(params[:order][:book_id])
-    @check_accepted = current_user.orders.where(status: 1).last
-    @check_pending = current_user.orders.where(status: 0).last
+    @error = "Please return your book first" if  @user.orders.last.present? && (@user.orders.last.status == "accepted" || @user.orders.last.status == "late")
+    @error = "Your past order is still pending" if @user.orders.last.present? && @user.orders.last.status == "pending" 
+    @error = "#{@book.title} Book is out of stock" if !@book.is_available
+    if @error.present?
+      render json: @error
+    else
+    @order = Order.new(order_params)
     @order.update(user_id: current_user.id, book_id: @book.id )
-    @admins = User.where(is_admin: true)
-    if @book.stock > 0 && !@check_accepted.present? && !@check_pending.present?
      if @order.save
-        @order.update(status: 0)
         render json: @order
-        @admins.each do |admin|
-        AdminMailer.new_order(admin).deliver_later
-        end
      else
         render json: @order.errors, status: :unprocessable_entity
       end
-    elsif @book.stock <= 0
-      @order.delete
-      error = "#{@book.title} Book is out of stock"
-      render json: error
-    elsif @check_accepted.present?
-      @order.delete
-      error = "Please return your book first"
-      render json: {measage: error, order:  OrderSerializer.new(@check_accepted)}
-    elsif @check_pending.present?
-      @order.delete
-      Order.where(status: nil).delete_all
-      error = "Your past order is still pending"
-      render json: {measage: error, order:  OrderSerializer.new(@check_pending)}
-    elsif @order.return_date <= Date.current
-      @order.delete
-      error = "Please select a valid return date"
-      render json: {measage: error, order:  OrderSerializer.new(@order)}
-   end
+    end
   end
 
   # PATCH/PUT /orders/1 or /orders/1.json

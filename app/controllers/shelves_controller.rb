@@ -45,9 +45,6 @@ class ShelvesController < ApplicationController
 
 
       if @shelf.save
-        if @shelf.current_capacity == nil
-          @shelf.current_capacity = 0
-        end
         render json: @shelf, status: :created, location: @shelf
       else
         render json: @shelf.errors, status: :unprocessable_entity

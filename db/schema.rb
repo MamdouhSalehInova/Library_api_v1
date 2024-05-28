@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_05_27_113627) do
+ActiveRecord::Schema[7.1].define(version: 2024_05_28_091749) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -21,11 +21,12 @@ ActiveRecord::Schema[7.1].define(version: 2024_05_27_113627) do
   end
 
   create_table "books", force: :cascade do |t|
-    t.string "title"
+    t.string "title", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "shelf_id", null: false
     t.bigint "author_id", null: false
+    t.boolean "is_available", default: true
     t.index ["author_id"], name: "index_books_on_author_id"
     t.index ["shelf_id"], name: "index_books_on_shelf_id"
   end
@@ -40,7 +41,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_05_27_113627) do
   end
 
   create_table "categories", force: :cascade do |t|
-    t.string "name"
+    t.string "name", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
@@ -48,9 +49,9 @@ ActiveRecord::Schema[7.1].define(version: 2024_05_27_113627) do
   create_table "orders", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.bigint "book_id"
-    t.bigint "user_id"
-    t.datetime "return_date"
+    t.bigint "book_id", null: false
+    t.bigint "user_id", null: false
+    t.datetime "return_date", null: false
     t.integer "status", default: 0
   end
 

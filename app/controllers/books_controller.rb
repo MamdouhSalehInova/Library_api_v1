@@ -39,7 +39,6 @@ class BooksController < ApplicationController
     end
     @error = "Shelf #{@new_shelf.name} is out of storage" if !@new_shelf.nil? && @new_shelf.current_capacity == @new_shelf.max_capacity 
     @error = "Book #{@book.title} is already on shelf #{@new_shelf.name}" if @new_shelf == @old_shelf
-    
     if @error.present?
       render json: @error
     else
