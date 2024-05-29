@@ -76,6 +76,7 @@ class OrdersController < ApplicationController
     @error = "Please return your book first" if  @user.orders.last.present? && (@user.orders.last.status == "accepted" || @user.orders.last.status == "late")
     @error = "Your past order is still pending" if @user.orders.last.present? && @user.orders.last.status == "pending" 
     @error = "#{@book.title} Book is out of stock" if !@book.is_available
+    @error = "Please Select a valid return date" if params[:order][:return_date].to_datetime <= Date.current
     if @error.present?
       render json: @error
     else

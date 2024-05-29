@@ -4,6 +4,7 @@ class BooksController < ApplicationController
   before_action :verified?
   before_action :admin?, only: [ :destroy, :create, :update]
 
+
   def index
     @books = Book.all.order(:title)
     render json: @books
@@ -13,7 +14,6 @@ class BooksController < ApplicationController
     @book = Book.find(params[:id])
     render json: @book
   end
-
 
   def create
     @book = Book.new(book_params)
@@ -59,6 +59,6 @@ class BooksController < ApplicationController
     end
 
     def book_params
-      params.require(:book).permit(:title, :shelf_id ,:stock, :rating, :author_id, category_ids: [])
+      params.require(:book).permit(:title, :shelf_id ,:stock, :rating, :author_id, category_ids: [].take(1))
     end
 end

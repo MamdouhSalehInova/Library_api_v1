@@ -10,7 +10,7 @@ class AuthorsController < ApplicationController
 
   def show
     @author = Author.find(params[:id])
-    render json: @author
+    render json: {:Author => @author,:Books => @author.books}
   end
 
   def new

@@ -9,7 +9,7 @@ class Book < ApplicationRecord
   belongs_to :author
   belongs_to :shelf
   validates :title, presence: true, uniqueness: true
-  validates :category_ids, presence: true
+  validates :category_ids, presence: true, length: { maximum: 3 } 
 
   def update_shelf
     @shelf =  self.shelf
