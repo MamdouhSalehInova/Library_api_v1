@@ -1,7 +1,10 @@
 class Shelf < ApplicationRecord
-  has_many :books
-  validates :max_capacity, presence: true
 
+  #associations
+  has_many :books
+
+  #validations
+  validates :max_capacity, presence: true
   validates :name, presence: true
 
   def self.ransackable_attributes(auth_object = nil)

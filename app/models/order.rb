@@ -1,9 +1,13 @@
 class Order < ApplicationRecord
 
+  #callbacks
   after_create :notify_admin
 
+  #associations
   belongs_to :user
   has_one :book
+
+  #validations
   validates :user, presence: true
   validates :book_id, presence: true
   validates :return_date, presence: true

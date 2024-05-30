@@ -1,19 +1,19 @@
 class Book < ApplicationRecord
 
+  #callbacks
   after_save :update_shelf
   after_destroy :remove_book_from_shelf
 
+  #associations
   has_many :books_categories, dependent: :destroy
   has_many :categories, through: :books_categories
   has_many :reviews, dependent: :delete_all
   belongs_to :author
   belongs_to :shelf
-  validates :title, presence: true, uniqueness: true
-  validates :categories_count, presence: true
 
-  def categories_count
-    errors.add(:error, "You can only add up to three categories for each book") unless self.category_ids.length < 4
-  end
+  #validations
+  validates :title, presence: true, uniqueness: true
+  validates :category_ids, presence: true, length: { maximum: 3 }
 
   def update_shelf
     @shelf =  self.shelf
