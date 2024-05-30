@@ -88,7 +88,6 @@ GEM
     builder (3.2.4)
     case_transform (0.2)
       activesupport
-    chunky_png (1.4.0)
     concurrent-ruby (1.2.3)
     connection_pool (2.4.1)
     crass (1.0.6)
@@ -232,10 +231,6 @@ GEM
       actionpack (>= 5.2)
       railties (>= 5.2)
     rotp (6.3.0)
-    rqrcode (2.2.0)
-      chunky_png (~> 1.0)
-      rqrcode_core (~> 1.0)
-    rqrcode_core (1.2.0)
     rufus-scheduler (3.9.1)
       fugit (~> 1.1, >= 1.1.6)
     sidekiq (7.2.4)
@@ -279,7 +274,6 @@ PLATFORMS
 
 DEPENDENCIES
   active_model_serializers
-  bcrypt (~> 3.1, >= 3.1.12)
   bootsnap
   debug
   devise
@@ -290,7 +284,6 @@ DEPENDENCIES
   puma (>= 5.0)
   rack-cors
   rails (~> 7.1.3, >= 7.1.3.3)
-  rqrcode
   sidekiq (~> 7.2)
   sidekiq-scheduler (~> 5.0, >= 5.0.3)
   simple_form

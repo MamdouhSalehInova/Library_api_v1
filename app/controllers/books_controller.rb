@@ -4,7 +4,6 @@ class BooksController < ApplicationController
   before_action :verified?
   before_action :admin?, only: [ :destroy, :create, :update]
 
-
   def index
     @books = Book.all.order(:title)
     render json: @books
@@ -12,7 +11,7 @@ class BooksController < ApplicationController
 
   def show
     @book = Book.find(params[:id])
-    render json: @book
+    render json: {Book: BookSerializer.new(@book)}
   end
 
   def create

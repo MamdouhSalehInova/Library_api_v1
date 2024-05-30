@@ -12,7 +12,6 @@ class OtpController < ApplicationController
     else
       render json: "Wrong OTP"
     end
-
   end
 
   def otp_params

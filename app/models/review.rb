@@ -7,4 +7,5 @@ class Review < ApplicationRecord
   #validations
   validates :body, presence: true
   validates :rating, presence: true
+  
 end

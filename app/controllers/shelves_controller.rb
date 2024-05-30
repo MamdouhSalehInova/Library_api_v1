@@ -1,7 +1,6 @@
 class ShelvesController < ApplicationController
   before_action :set_shelf, only: %i[ show edit update destroy ]
   before_action :admin?, only: [ :edit, :destroy, :new, :create, :update]
-  before_action :check_capacity, only: [:show]
   before_action :verified?
 
   def index
@@ -9,26 +8,14 @@ class ShelvesController < ApplicationController
     render json: @shelves
   end
 
-  def check_capacity
-    @shelf = Shelf.find(params[:id])
-    if @shelf.max_capacity == @shelf.current_capacity
-      notice = "Shelf #{@shelf} is full!"
-      render json: notice
-    end
-  end
-
   def show
     @shelf = Shelf.find(params[:id])
     @books = Book.where(shelf_id: @shelf.id)
-    render json: {Shelf: ShelfSerializer.new(@shelf), Books: @shelf.books}
+    render json: {Shelf: ShelfSerializer.new(@shelf), Books: @shelf.books.order(:title)}
   end
 
   def new
     @shelf = Shelf.new
-
-  end
-
-  def edit
   end
 
   def create
@@ -54,13 +41,15 @@ class ShelvesController < ApplicationController
     end
   end
 
+  def edit
+  end
+
   private
 
     def set_shelf
       @shelf = Shelf.find(params[:id])
     end
 
-    # Only allow a list of trusted parameters through.
     def shelf_params
       params.require(:shelf).permit(:name, :max_capacity, :id, :current_capacity)
     end

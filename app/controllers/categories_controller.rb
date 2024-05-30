@@ -10,15 +10,11 @@ class CategoriesController < ApplicationController
 
   def show
     @category = Category.find(params[:id])
-    @books = @category.books
-    render json: {@category.name => @books}
+    render json: {@category.name => @category.books.order(:title)}
   end
 
   def new
     @category = Category.new
-  end
-
-  def edit
   end
 
   def create
@@ -45,6 +41,9 @@ class CategoriesController < ApplicationController
     if @category.destroy!
       render json: {message: "success"}
     end
+  end
+
+  def edit
   end
 
   private

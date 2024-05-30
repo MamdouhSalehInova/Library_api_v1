@@ -40,10 +40,8 @@ gem 'devise-jwt'
 gem 'jsonapi-serializer'
 
 gem 'devise-two-factor'
-gem 'rqrcode'
 gem 'simple_form'
 gem 'active_model_serializers'
-gem 'bcrypt', '~> 3.1', '>= 3.1.12'
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem

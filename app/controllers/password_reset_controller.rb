@@ -20,7 +20,6 @@ class PasswordResetController < ApplicationController
     else
       render json: @user.errors
     end
-
   end
 
   def user_params

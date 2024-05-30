@@ -17,9 +17,6 @@ class AuthorsController < ApplicationController
     @author = Author.new
   end
 
-  def edit
-  end
-
   def create
     @author = Author.new(author_params)
       if @author.save
@@ -45,6 +42,9 @@ class AuthorsController < ApplicationController
       else
         render json: @author.errors, status: :unprocessable_entity
       end
+  end
+
+  def edit
   end
 
   private
