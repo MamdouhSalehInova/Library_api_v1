@@ -17,21 +17,21 @@ class ReviewsController < ApplicationController
   def create
     @user = current_user
     @book = Book.find(params[:review][:book_id])
-    if @user.orders.where(book_id: @book.id, status: 3).present?
-      @review = Review.new(review_params)
-      @review.update(user_id: @user.id)
-      @review.update(book_id: @book.id)
-      if @review.save
-        render json: @review
+    @error = "you must've had ordered this book and returned it before to write a review about it" if !@user.orders.where(book_id: @book.id, status: 3).present?
+    @error = "You have already reviewed this book" if @book.reviews.find_by(user_id: current_user.id) 
+      if @error.present?
+        render json: @error
       else
-        render json: @review.errors, status: :unprocessable_entity
+        @review = Review.new(review_params)
+        @review.update(user_id: @user.id, book_id: @book.id)
+        if @review.save
+          render json: @review
+        else
+          render json: @review.errors, status: :unprocessable_entity
+        end
       end
-    else
-      error= "you must've had ordered this book and returned it before to write a review about it"
-      render json: error
-    end
-
   end
+  
 
   def update
     if @review.user.email == current_user.email

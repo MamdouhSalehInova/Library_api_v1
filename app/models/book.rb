@@ -9,7 +9,11 @@ class Book < ApplicationRecord
   belongs_to :author
   belongs_to :shelf
   validates :title, presence: true, uniqueness: true
-  validates :category_ids, presence: true, length: { maximum: 3 } 
+  validates :categories_count, presence: true
+
+  def categories_count
+    errors.add(:error, "You can only add up to three categories for each book") unless self.category_ids.length < 4
+  end
 
   def update_shelf
     @shelf =  self.shelf
