@@ -4,7 +4,7 @@ class AuthorsController < ApplicationController
   before_action :verified?
 
   def index
-    @authors = Author.all.order(:name)
+    @authors = Author.page(params[:page]).order(:name)
     render json: @authors
   end
 

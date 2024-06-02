@@ -5,7 +5,7 @@ class SendOtpService
   end
 
   def send_otp
-    UserMailer.otp_send(@user).deliver_now
+    UserMailer.otp_send(@user).deliver_later
   end
 
   def call

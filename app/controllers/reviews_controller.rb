@@ -5,7 +5,7 @@ class ReviewsController < ApplicationController
   before_action :verified?
 
   def index
-    @reviews = Review.all.order(:id)
+    @reviews = Review.page(params[:page]).order(:id)
     render json: @reviews
   end
 

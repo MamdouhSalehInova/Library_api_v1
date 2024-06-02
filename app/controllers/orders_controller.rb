@@ -1,12 +1,11 @@
 class OrdersController < ApplicationController
   before_action :set_order, only: %i[ show update destroy ]
-  before_action :authenticate_user!, only: [:my_orders, :create, :update]
+  before_action :authenticate_user!, only: [:my_orders, :create, :update, :index, :show]
   before_action :admin?, only: [ :index ,:accept, :reject, :return, :late, :destroy, :update, :show]
   before_action :verified?
-  respond_to :json
 
   def index
-    @orders = Order.all.order(:id)
+    @orders = Order.page(params[:page]).order(:id)
     render json: @orders
   end
 
@@ -17,7 +16,7 @@ class OrdersController < ApplicationController
   end
 
   def my_orders
-    @orders = current_user.orders
+    @orders = current_user.orders.page(params[:page]).order(:id)
     render json: @orders.order(:id), each_serializer: OrderSerializer
   end
 

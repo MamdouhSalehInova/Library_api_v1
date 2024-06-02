@@ -13,7 +13,7 @@ class User < ApplicationRecord
   private
 
   def after_confirmation
-   WelcomeMailer.send_greeting_notification(self).deliver_now
+    WelcomeMailer.send_greeting_notification(self).deliver_later
   end
   
 end

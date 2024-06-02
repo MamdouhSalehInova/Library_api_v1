@@ -4,7 +4,7 @@ class CategoriesController < ApplicationController
   before_action :verified?
 
   def index
-    @categories = Category.all.order(:name)
+    @categories = Category.page(params[:page]).order(:name)
     render json: @categories
   end
 

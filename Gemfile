@@ -55,3 +55,5 @@ end
 
 gem "sidekiq", "~> 7.2"
 gem 'sidekiq-scheduler', '~> 5.0', '>= 5.0.3'
+
+gem "kaminari", "~> 1.2"

@@ -5,7 +5,7 @@ class BooksController < ApplicationController
   before_action :admin?, only: [ :destroy, :create, :update]
 
   def index
-    @books = Book.all.order(:title)
+    @books = Book.page(params[:page]).order(:title)
     render json: @books
   end
 
@@ -31,9 +31,9 @@ class BooksController < ApplicationController
   def update
     if params[:book][:shelf_id].present?
       @new_shelf = Shelf.find(params[:book][:shelf_id])
+      @error = "Book #{@book.title} is already on shelf #{@new_shelf.name}" if @new_shelf == @book.shelf
+      @error = "Shelf #{@new_shelf.name} is out of storage" if @new_shelf.current_capacity == @new_shelf.max_capacity 
     end
-    @error = "Shelf #{@new_shelf.name} is out of storage" if !@new_shelf.nil? && @new_shelf.current_capacity == @new_shelf.max_capacity 
-    @error = "Book #{@book.title} is already on shelf #{@new_shelf.name}" if @new_shelf == @book.shelf
     if @error.present?
       render json: @error
     else
