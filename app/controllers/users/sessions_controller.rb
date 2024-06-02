@@ -2,9 +2,7 @@ class Users::SessionsController < Devise::SessionsController
   include RackSessionsFix
   respond_to :json
 
-
   def create
-    @user = User.find_by(params[:email])
     self.resource = warden.authenticate!(auth_options)
     @user.update(otp_code: SecureRandom.rand(10000..99999))
     SendOtpService.new(@user).call
@@ -27,7 +25,6 @@ class Users::SessionsController < Devise::SessionsController
   end
 
   def respond_to_on_destroy
-
     if current_user
       @user = current_user
       @user.update(is_verified: false)
