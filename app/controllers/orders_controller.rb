@@ -5,7 +5,7 @@ class OrdersController < ApplicationController
   before_action :verified?
 
   def index
-    @orders = Order.page(params[:page]).order(:id)
+    @orders = Order.page(params[:page]).per(params[:page_size]).order(:id)
     render json: @orders
   end
 
@@ -30,8 +30,8 @@ class OrdersController < ApplicationController
       render json: {message: "Accepted Order"}
       UserMailer.accepted(@user, @book).deliver_later
     else
-        error = "Out of stock for #{@book.title}"
-        render json: error
+      error = "Out of stock for #{@book.title}"
+      render json: error
     end
   end
 
@@ -62,7 +62,7 @@ class OrdersController < ApplicationController
 
   def show
     @order = Order.find(params[:id])
-    render json: {order: OrderSerializer.new(@order), user: UserSerializer.new(@order.user), book: Book.find(@order.book_id).title, stock: Book.find(@order.book_id).stock}
+    render json: {order: OrderSerializer.new(@order), book: Book.find(@order.book_id).title}
   end
 
   def new
@@ -109,7 +109,7 @@ class OrdersController < ApplicationController
     end
 
     def order_params
-      params.require(:order).permit(:status,:user_id, :book_id, :return_date)
+      params.require(:order).permit(:status, :user_id, :book_id, :return_date)
     end
     
 end

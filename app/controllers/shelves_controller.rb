@@ -4,7 +4,7 @@ class ShelvesController < ApplicationController
   before_action :verified?
 
   def index
-    @shelves = Shelf.page(params[:page]).order(:name)
+    @shelves = Shelf.page(params[:page]).per(params[:page_size]).order(:name)
     render json: @shelves
   end
 

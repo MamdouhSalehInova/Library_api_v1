@@ -5,7 +5,7 @@ class BooksController < ApplicationController
   before_action :admin?, only: [ :destroy, :create, :update]
 
   def index
-    @books = Book.page(params[:page]).order(:title)
+    @books = Book.includes(:author, :shelf, :reviews, :books_categories, :categories).page(params[:page]).per(params[:page_size]).order(:title)
     render json: @books
   end
 
