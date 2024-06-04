@@ -14,6 +14,7 @@ class Order < ApplicationRecord
 
   enum :status, [ :pending, :accepted, :rejected, :returned, :late ]
 
+  #Send an email to all admins when a new order is created
   def notify_admin
     @admins = User.where(is_admin: true)
     @admins.each do |admin|

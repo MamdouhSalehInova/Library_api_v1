@@ -6,6 +6,7 @@ class ApplicationController < ActionController::API
   I18n.locale = params[:locale] || I18n.default_locale
   end
 
+  #Checks if current user is admin
   def admin?
     unless current_user and current_user.is_admin?
       error = "no access"
@@ -13,6 +14,7 @@ class ApplicationController < ActionController::API
     end
   end
 
+  #Checks if current user verified their otp
   def verified?
     if current_user
       unless current_user and current_user.is_verified?

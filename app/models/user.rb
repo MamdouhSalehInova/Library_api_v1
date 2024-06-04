@@ -12,6 +12,7 @@ class User < ApplicationRecord
 
   private
 
+  #Sends a greeting email when a user confirms his/her email adress
   def after_confirmation
     WelcomeMailer.send_greeting_notification(self).deliver_later
   end

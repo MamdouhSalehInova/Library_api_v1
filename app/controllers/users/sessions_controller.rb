@@ -2,6 +2,7 @@ class Users::SessionsController < Devise::SessionsController
   include RackSessionsFix
   respond_to :json
 
+  #Creates a new session and generates a 5 digit otp code, assigned and sent to the user
   def create
     self.resource = warden.authenticate!(auth_options)
     @user.update(otp_code: SecureRandom.rand(10000..99999))
@@ -9,6 +10,7 @@ class Users::SessionsController < Devise::SessionsController
     render json: {message: "Otp Sent To #{@user.email}"}
   end
 
+  #destroys the current session and sets the user's is_verified attribute to false
   def destroy
     @user = current_user
     @user.update(is_verified:false)

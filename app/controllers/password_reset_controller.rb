@@ -1,5 +1,6 @@
 class PasswordResetController < ApplicationController
 
+  #Generates a password reset token and send a password reset email to the user if found
   def create
     @user = User.find_by(email: user_params[:email])
     if @user.present?
@@ -11,6 +12,7 @@ class PasswordResetController < ApplicationController
     end
   end
 
+  #Updates the user's password, user is found using the associated reset_password_token
   def edit
     @user = User.find_by(reset_password_token: params[:reset_password_token])
     @user.update(password: params[:user][:password])

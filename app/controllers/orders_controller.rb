@@ -1,6 +1,6 @@
 class OrdersController < ApplicationController
   before_action :set_order, only: %i[ show update destroy ]
-  before_action :authenticate_user!, only: [:my_orders, :create, :update, :index, :show]
+  before_action :authenticate_user!, only: [:my_orders, :create, :update, :index, :show, :late]
   before_action :admin?, only: [ :index ,:accept, :reject, :return, :late, :destroy, :update, :show]
   before_action :verified?
 
@@ -9,17 +9,20 @@ class OrdersController < ApplicationController
     render json: @orders
   end
 
+  #Renders all orders with status "late"
   def late
     @orders = Order.all
     @late_orders = @orders.where(status: 4)
     render json: @late_orders
   end
 
+  #Renders all current user orders
   def my_orders
     @orders = current_user.orders.page(params[:page]).order(:id)
     render json: @orders.order(:id), each_serializer: OrderSerializer
   end
 
+  #Updates order's status to "accepted"
   def accept
     @order = Order.find(params[:order_id])
     @book = Book.find_by_id(@order.book_id)
@@ -35,6 +38,7 @@ class OrdersController < ApplicationController
     end
   end
 
+  #Update order's status to "rejected"
   def reject
     @order = Order.find(params[:order_id])
     @user = User.find_by(id: @order.user_id)
@@ -44,6 +48,7 @@ class OrdersController < ApplicationController
     UserMailer.rejected(@user, @book).deliver_later
   end
 
+  #Updates order's status to "returned" and book is_available to true
   def return
     @order = Order.find(params[:order_id])
     @error = "Book was already returned to shelf" if @order.status == "returned"
@@ -79,8 +84,8 @@ class OrdersController < ApplicationController
     if @error.present?
       render json: @error
     else
-    @order = Order.new(order_params)
-    @order.update(user_id: current_user.id, book_id: @book.id )
+      @order = Order.new(order_params)
+      @order.update(user_id: current_user.id, book_id: @book.id )
      if @order.save
         render json: @order
      else

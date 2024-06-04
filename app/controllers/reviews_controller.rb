@@ -1,5 +1,4 @@
 class ReviewsController < ApplicationController
-  respond_to :json
   before_action :set_review, only: %i[ show update destroy ]
   before_action :authenticate_user!, only: [:create, :update, :destroy]
   before_action :verified?
