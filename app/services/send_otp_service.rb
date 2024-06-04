@@ -12,6 +12,4 @@ class SendOtpService
     send_otp
   end
 
-
-
 end

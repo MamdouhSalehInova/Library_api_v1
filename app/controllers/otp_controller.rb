@@ -1,7 +1,7 @@
 class OtpController < ApplicationController
   include RackSessionsFix
 
-  #Compares the user's assigned otp to his attempt
+  #Compares the user's assigned otp to his attempt by calling the verify otp service in app/services
   def verify
     @user = current_user
     @otp_attempt = params[:otp][:otp_attempt]

@@ -18,7 +18,7 @@ class BooksController < ApplicationController
     @book = Book.new(book_params)
       @shelf = @book.shelf
        if @shelf.current_capacity >= @shelf.max_capacity 
-        render json: {message: "#{@book.shelf.name} is out of storage"}
+        render json: {message: "#{@book.shelf.name} is out of storage"}, status: :precondition_failed
        else
         if @book.save
             render json: @book, status: :created, location: @book
@@ -35,7 +35,7 @@ class BooksController < ApplicationController
       @error = "Shelf #{@new_shelf.name} is out of storage" if @new_shelf.current_capacity == @new_shelf.max_capacity 
     end
     if @error.present?
-      render json: @error
+      render json: @error, status: :precondition_failed
     else
       if @book.update(book_params)
         render json: @book, status: :ok
@@ -47,7 +47,7 @@ class BooksController < ApplicationController
 
   def destroy
     if @book.destroy!
-      render json: {message: "success"}
+      render json: "Book was deleted successfuly", status: :ok
     end
   end
 

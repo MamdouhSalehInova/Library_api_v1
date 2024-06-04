@@ -8,7 +8,6 @@ class VerifyOtpService
   def verify_otp
     if @otp_attempt ==  @user.otp_code
       @user.update(is_verified: true)
-      @user.update(is_verified: true)
     else
      return false
     end
@@ -17,7 +16,5 @@ class VerifyOtpService
   def call
     verify_otp
   end
-
-
 
 end

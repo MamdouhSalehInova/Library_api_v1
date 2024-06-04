@@ -1,5 +1,4 @@
 class ApplicationController < ActionController::API
-
   before_action :set_locale
 
   def set_locale
@@ -10,7 +9,7 @@ class ApplicationController < ActionController::API
   def admin?
     unless current_user and current_user.is_admin?
       error = "no access"
-      render json: {message: error}
+      render json: error, status: :unauthorized
     end
   end
 
@@ -19,7 +18,7 @@ class ApplicationController < ActionController::API
     if current_user
       unless current_user and current_user.is_verified?
       error = "you need to verify your otp first"
-      render json: error
+      render json: error, status: :unauthorized
       end
     end
   end

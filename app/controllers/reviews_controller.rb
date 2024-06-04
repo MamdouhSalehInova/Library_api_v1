@@ -19,7 +19,7 @@ class ReviewsController < ApplicationController
     @error = "you must've had ordered this book and returned it before to write a review about it" if !@user.orders.where(book_id: @book.id, status: 3).present?
     @error = "You have already reviewed this book" if @book.reviews.find_by(user_id: current_user.id) 
       if @error.present?
-        render json: @error
+        render json: @error, status: :precondition_failed
       else
         @review = Review.new(review_params)
         @review.update(user_id: @user.id, book_id: @book.id)
@@ -40,7 +40,7 @@ class ReviewsController < ApplicationController
         render json: @review.errors, status: :unprocessable_entity
       end
     else
-      render json: {message: "You cant edit other's reviews"}
+      render json: {message: "You cant edit other's reviews"}, status: :forbidden
     end
 
   end
@@ -51,7 +51,7 @@ class ReviewsController < ApplicationController
       render json: {message: "Review deleted succefully"}
     else
       error = "you cant delete other's reviews"
-      render json: error
+      render json: error, status: :forbidden
     end
   end
 

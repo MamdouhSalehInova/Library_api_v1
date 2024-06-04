@@ -18,7 +18,7 @@ class OrdersController < ApplicationController
 
   #Renders all current user orders
   def my_orders
-    @orders = current_user.orders.page(params[:page]).order(:id)
+    @orders = current_user.orders.page(params[:page]).per(params[:page_size]).order(:id)
     render json: @orders.order(:id), each_serializer: OrderSerializer
   end
 
@@ -34,7 +34,7 @@ class OrdersController < ApplicationController
       UserMailer.accepted(@user, @book).deliver_later
     else
       error = "Out of stock for #{@book.title}"
-      render json: error
+      render json: error, status: :precondition_failed
     end
   end
 
@@ -54,7 +54,7 @@ class OrdersController < ApplicationController
     @error = "Book was already returned to shelf" if @order.status == "returned"
     @error = "you must have accepted this order to return it" if @order.status == "pending" || @order.status == "rejected"
     if @error.present?
-      render json: @error
+      render json: @error, status: :precondition_failed
     else
     @user = @order.user
     @order.update(status: 3)
@@ -82,7 +82,7 @@ class OrdersController < ApplicationController
     @error = "#{@book.title} Book is out of stock" if !@book.is_available
     @error = "Please Select a valid return date" if params[:order][:return_date].to_datetime <= Date.current
     if @error.present?
-      render json: @error
+      render json: @error, status: :precondition_failed
     else
       @order = Order.new(order_params)
       @order.update(user_id: current_user.id, book_id: @book.id )
@@ -96,15 +96,15 @@ class OrdersController < ApplicationController
 
   def update
       if @order.update(order_params)
-        render json: {message: "success"}
+        render json: "Order updated successfully"
       else
-        render json: {message: "failed"}
+        render json: "Order failed to update"
       end
   end
 
   def destroy
     @order.destroy!
-    render json: {message: "success"}
+    render json: "Order deleted succesfully", status: :ok
   end
 
   private
