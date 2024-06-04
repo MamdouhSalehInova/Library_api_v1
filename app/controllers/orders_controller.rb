@@ -25,42 +25,41 @@ class OrdersController < ApplicationController
   #Updates order's status to "accepted"
   def accept
     @order = Order.find(params[:order_id])
-    @book = Book.find_by_id(@order.book_id)
-    @user = User.find_by(id: @order.user_id)
-    if @book.is_available && @order.present?
-      @order.update(status: 1)
-      @book.update(is_available: false)
-      render json: {message: "Accepted Order"}
-      UserMailer.accepted(@user, @book).deliver_later
+    @book = @order.book
+    @error = "You already managed this order" if @order.status != "pending"
+    if @error.present?
+      render json: @error
     else
-      error = "Out of stock for #{@book.title}"
-      render json: error, status: :precondition_failed
+      if @book.is_available && @order.present?
+        @order.accept
+        render json: {message: "Accepted Order"}
+      else
+        error = "Out of stock for #{@book.title}"
+        render json: error, status: :precondition_failed
+      end
     end
   end
 
   #Update order's status to "rejected"
   def reject
     @order = Order.find(params[:order_id])
-    @user = User.find_by(id: @order.user_id)
-    @order.update(status: 2)
-    @book = Book.find_by_id(@order.book_id)
-    render json: {message: "Rejected Order"}
-    UserMailer.rejected(@user, @book).deliver_later
+    @error = "You've already managed this order" if @order.status != "pending"
+    if @error.present?
+      render json: @error
+    else
+      @order.reject
+      render json: {message: "Rejected Order"}
+    end
   end
 
   #Updates order's status to "returned" and book is_available to true
   def return
     @order = Order.find(params[:order_id])
-    @error = "Book was already returned to shelf" if @order.status == "returned"
-    @error = "you must have accepted this order to return it" if @order.status == "pending" || @order.status == "rejected"
+    check_return_errors()
     if @error.present?
       render json: @error, status: :precondition_failed
     else
-    @user = @order.user
-    @order.update(status: 3)
-    @book = Book.find_by_id(@order.book_id)
-    @book.update(is_available: true)
-    UserMailer.returned(@user, @book).deliver_later
+    @order.return
     render json: {message: "Returned book to shelf"}
     end
   end
@@ -75,12 +74,7 @@ class OrdersController < ApplicationController
   end
 
   def create
-    @user = current_user
-    @book = Book.find(params[:order][:book_id])
-    @error = "Please return your book first" if  @user.orders.last.present? && (@user.orders.last.status == "accepted" || @user.orders.last.status == "late")
-    @error = "Your past order is still pending" if @user.orders.last.present? && @user.orders.last.status == "pending" 
-    @error = "#{@book.title} Book is out of stock" if !@book.is_available
-    @error = "Please Select a valid return date" if params[:order][:return_date].to_datetime <= Date.current
+    check_create_errors()
     if @error.present?
       render json: @error, status: :precondition_failed
     else
@@ -103,9 +97,25 @@ class OrdersController < ApplicationController
   end
 
   def destroy
-    @order.destroy!
-    render json: "Order deleted succesfully", status: :ok
+    if @order.destroy!
+      render json: "Order deleted succesfully", status: :ok
+    end
   end
+
+  def check_create_errors
+    @user = current_user
+    @book = Book.find(params[:order][:book_id])
+    @error = "Please return your book first" if  @user.orders.last.present? && (@user.orders.last.status == "accepted" || @user.orders.last.status == "late")
+    @error = "Your past order is still pending" if @user.orders.last.present? && @user.orders.last.status == "pending" 
+    @error = "#{@book.title} Book is out of stock" if !@book.is_available
+    @error = "Please Select a valid return date" if params[:order][:return_date].to_datetime <= Date.current
+  end
+
+  def check_return_errors
+    @error = "Book was already returned to shelf" if @order.status == "returned"
+    @error = "you must have accepted this order to return it" if @order.status == "pending" || @order.status == "rejected"
+  end
+  
 
   private
 

@@ -12,6 +12,7 @@ class Book < ApplicationRecord
   belongs_to :author
   belongs_to :shelf
 
+
   #validations
   validates :title, presence: true, uniqueness: true
   validates :category_ids, presence: true, length: { maximum: 3 }
@@ -36,6 +37,14 @@ class Book < ApplicationRecord
   def increment_shelf_capacity
     @shelf = self.shelf
     @shelf.increment_capacity
+  end
+
+  def set_is_available
+    self.update(is_available: true)
+  end
+
+  def set_not_available
+    self.update(is_available: false)
   end
 
 end
