@@ -5,12 +5,12 @@ class ReviewsController < ApplicationController
 
   def index
     @reviews = Review.page(params[:page]).per(params[:page_size]).order(:id)
-    render json: @reviews
+    render json: {data: {reviews: @reviews.map{|review| review.as_serialized_json}}}
   end
 
   def show
     @review = Review.find(params[:id])
-    render json: @review
+    render json: @review.as_serialized_json
   end
 
   def create
@@ -19,14 +19,14 @@ class ReviewsController < ApplicationController
     @error = "you must've had ordered this book and returned it before to write a review about it" if !@user.orders.where(book_id: @book.id, status: 3).present?
     @error = "You have already reviewed this book" if @book.reviews.find_by(user_id: current_user.id) 
       if @error.present?
-        render json: @error, status: :precondition_failed
+        render json: {message: @error}, status: :precondition_failed
       else
         @review = Review.new(review_params)
         @review.update(user_id: @user.id, book_id: @book.id)
         if @review.save
-          render json: @review
+          render json: {message: @review}
         else
-          render json: @review.errors, status: :unprocessable_entity
+          render json: {message: @review.errors}, status: :unprocessable_entity
         end
       end
   end

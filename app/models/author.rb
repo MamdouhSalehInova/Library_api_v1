@@ -1,5 +1,5 @@
 class Author < ApplicationRecord
-
+  
   #associations
   has_many :books
 

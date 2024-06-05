@@ -1,5 +1,6 @@
 class Book < ApplicationRecord
 
+
   #callbacks
   after_update :update_old_shelf
   after_destroy :remove_book_from_shelf
@@ -29,22 +30,22 @@ class Book < ApplicationRecord
 
   #Updates shelf when a book is deleted
   def remove_book_from_shelf
-    @shelf =  self.shelf
-    @shelf.decrement_capacity
+    Shelf.decrement_counter(:current_capacity, shelf.id, by: 1)
   end
   
   #Updates shelf when a book is created
   def increment_shelf_capacity
-    @shelf = self.shelf
-    @shelf.increment_capacity
+    Shelf.increment_counter(:current_capacity, shelf.id, by: 1)
   end
 
   def set_is_available
-    self.update(is_available: true)
+    lock!
+    update(is_available: true)
   end
 
   def set_not_available
-    self.update(is_available: false)
+    lock!
+    update(is_available: false)
   end
 
 end

@@ -5,12 +5,12 @@ class CategoriesController < ApplicationController
 
   def index
     @categories = Category.page(params[:page]).per(params[:page_size]).order(:name)
-    render json: @categories
+    render json: {data: {categories: @categories.map{|category| category.as_serialized_json}}}
   end
 
   def show
     @category = Category.find(params[:id])
-    render json: {@category.name => @category.books.order(:title)}
+    render json: {data: {category: @category.as_serialized_json, books: @category.books.map{|book| book.as_serialized_json}}}
   end
 
   def new

@@ -11,7 +11,7 @@ class OtpController < ApplicationController
         data: UserSerializer.new(@user)
       }, status: :ok
     else
-      render json: "Wrong OTP"
+      render json: "Wrong OTP", status: 422
     end
   end
 

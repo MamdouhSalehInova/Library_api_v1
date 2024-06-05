@@ -5,12 +5,12 @@ class AuthorsController < ApplicationController
 
   def index
     @authors = Author.page(params[:page]).order(:name)
-    render json: @authors
+    render json: {data: @authors.map{|author| author.as_serialized_json}}
   end
 
   def show
     @author = Author.find(params[:id])
-    render json: {:Author => @author,:Books => @author.books}
+    render json: {data: {author: @author.as_serialized_json, books: @author.books.map{|book| book.as_serialized_json}}}
   end
 
   def new
@@ -27,13 +27,11 @@ class AuthorsController < ApplicationController
   end
 
   def update
-
       if @author.update(author_params)
         render json: {author: @author, status: :ok, message: "author updated successfully" }
       else
         render json: @author.errors, status: :unprocessable_entity
       end
-
   end
 
   def destroy

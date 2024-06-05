@@ -1,12 +1,11 @@
-class OrderSerializer 
+class ReviewSerializer
   include JSONAPI::Serializer
-  attributes :id, :created_at ,:return_date, :status
+  attributes :rating, :body
 
-  attribute :user do |record|
+  attribute :user_email do |record|
     record.user.as_serialized_json
   end
   attribute :book do |record|
     record.book.as_serialized_json
   end
-
 end

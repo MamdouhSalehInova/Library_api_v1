@@ -5,13 +5,13 @@ class BooksController < ApplicationController
   before_action :admin?, only: [ :destroy, :create, :update]
 
   def index
-    @books = Book.includes(:author, :shelf, :reviews, :books_categories, :categories).page(params[:page]).per(params[:page_size]).order(:title)
-    render json: @books
+    @books = Book.page(params[:page]).per(params[:page_size]).order(:id)
+    render json: {data: {books: @books.map{|book| book.as_serialized_json}}}
   end
 
   def show
     @book = Book.find(params[:id])
-    render json: {Book: BookSerializer.new(@book)}
+    render json: @book.as_serialized_json
   end
 
   def create

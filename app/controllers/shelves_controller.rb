@@ -5,13 +5,13 @@ class ShelvesController < ApplicationController
 
   def index
     @shelves = Shelf.page(params[:page]).per(params[:page_size]).order(:name)
-    render json: @shelves
+    render json: {data: {shelves: @shelves.map{|shelf| shelf.as_serialized_json}}}
   end
 
   def show
     @shelf = Shelf.find(params[:id])
     @books = Book.where(shelf_id: @shelf.id)
-    render json: {Shelf: ShelfSerializer.new(@shelf), Books: @shelf.books.order(:title)}
+    render json: {data: {shelf: @shelf.as_serialized_json, books: @shelf.books.map{|book| book.as_serialized_json}}}
   end
 
   def new

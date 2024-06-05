@@ -22,22 +22,23 @@ class Order < ApplicationRecord
       end
   end
 
-
   def accept
-    self.update(status: 1)
-    self.book.set_not_available
-    UserMailer.accepted(self.user, self.book).deliver_later
+    update(status: 1)
+    book.set_not_available
+    Shelf.decrement_counter(:current_capacity, book.shelf.id, by: 1)
+    UserMailer.accepted(user, book).deliver_later
   end
   
   def reject
-    self.update(status: 2)
-    UserMailer.rejected(self.user, self.book).deliver_later
+    update(status: 2)
+    UserMailer.rejected(user, book).deliver_later
   end
   
   def return
-    self.update(status: 3)
-    self.book.set_is_available
-    UserMailer.returned(self.user, self.book).deliver_later
+    update(status: 3)
+    book.set_is_available
+    Shelf.increment_counter(:current_capacity, book.shelf.id, by: 1)
+    UserMailer.returned(user, book).deliver_later
   end
   
 end

@@ -6,20 +6,19 @@ class OrdersController < ApplicationController
 
   def index
     @orders = Order.page(params[:page]).per(params[:page_size]).order(:id)
-    render json: @orders
+    render json: {data: {orders: @orders.map{|order| order.as_serialized_json}}}
   end
 
   #Renders all orders with status "late"
   def late
-    @orders = Order.all
-    @late_orders = @orders.where(status: 4)
-    render json: @late_orders
+    @late_orders = Order.where(status: 4)
+    render json: {data: {orders: @late_orders.map{|order| order.as_serialized_json}}}
   end
 
   #Renders all current user orders
   def my_orders
     @orders = current_user.orders.page(params[:page]).per(params[:page_size]).order(:id)
-    render json: @orders.order(:id), each_serializer: OrderSerializer
+    render json: {data: {orders: @orders.map{|order| order.as_serialized_json}}}
   end
 
   #Updates order's status to "accepted"
@@ -66,7 +65,7 @@ class OrdersController < ApplicationController
 
   def show
     @order = Order.find(params[:id])
-    render json: {order: OrderSerializer.new(@order), book: Book.find(@order.book_id).title}
+    render json: @order.as_serialized_json
   end
 
   def new
@@ -116,7 +115,6 @@ class OrdersController < ApplicationController
     @error = "you must have accepted this order to return it" if @order.status == "pending" || @order.status == "rejected"
   end
   
-
   private
 
     def set_order
@@ -124,7 +122,7 @@ class OrdersController < ApplicationController
     end
 
     def order_params
-      params.require(:order).permit(:status, :user_id, :book_id, :return_date)
+      params.require(:order).permit(:book_id, :return_date)
     end
     
 end

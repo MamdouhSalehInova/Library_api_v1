@@ -1,3 +1,4 @@
-class AuthorSerializer < ActiveModel::Serializer
+class AuthorSerializer 
+  include JSONAPI::Serializer
   attributes  :id, :name
 end
