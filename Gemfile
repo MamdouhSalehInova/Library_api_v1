@@ -36,7 +36,6 @@ gem "bootsnap", require: false
 gem "rack-cors"
 
 gem 'devise'
-gem 'devise-jwt'
 gem 'jsonapi-serializer'
 gem 'devise-two-factor'
 gem 'simple_form'

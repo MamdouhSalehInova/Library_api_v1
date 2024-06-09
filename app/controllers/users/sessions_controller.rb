@@ -1,21 +1,28 @@
-class Users::SessionsController < Devise::SessionsController
+class Users::SessionsController < ApplicationController
   include RackSessionsFix
   respond_to :json
 
   def create
-    user = User.find_by_email(sign_in_params[:email])
-    if user && user.valid_password?(sign_in_params[:password])
-      user.update(otp_code: SecureRandom.rand(10000..99999))
-      SendOtpService.new(user).call
-      token = user.generate_jwt
+    user = User.find_by_email(params[:user][:email])
+    if Session.find_by(user_id: user.id).present?
       render json: {
-        message: "Otp Sent To #{user.email}", 
-        user: user.as_serialized_json,
-        access_token: token
-      }
+        message: "You are already logged in"}
     else
-      render json: { errors: { 'email or password' => ['is invalid'] } }, status: :unprocessable_entity
+      if user && user.valid_password?(params[:user][:password])
+        user.update(otp_code: SecureRandom.rand(10000..99999))
+        SendOtpService.new(user).call
+        token = user.generate_jwt
+        Session.create(user_id: user.id, token: token)
+        render json: {
+          message: "Otp Sent To #{user.email}", 
+          user: user.as_serialized_json,
+          access_token: token
+        }
+      else
+        render json: { errors: { 'email or password' => ['is invalid'] } }, status: :unprocessable_entity
+      end
     end
+  
   end
 
   #Creates a new session and generates a 5 digit otp code, assigned and sent to the user
@@ -32,9 +39,14 @@ class Users::SessionsController < Devise::SessionsController
 
   #destroys the current session and sets the user's is_verified attribute to false
   def destroy
-    @user = current_user
-    @user.update(is_verified:false)
-     super
+    if Session.find_by(user_id: current_user.id).present?
+      current_user.update(is_verified: false)
+      token = request.headers['Authorization'].split(' ')[1]
+      current_user.revoke_jwt(token)
+      render json: { message: "Signed out successfully", user: current_user }, status: :ok
+    else
+      render json: { message: "Couldn't find an active session." }, status: :unauthorized
+    end
   end
 
   private
@@ -47,9 +59,7 @@ class Users::SessionsController < Devise::SessionsController
   end
 
   def respond_to_on_destroy
-    if current_user
-      @user = current_user
-      @user.update(is_verified: false)
+    if Session.find_by(user_id: current_user.id).present?
       render json: {
         status: 200,
         message: "logged out successfully"

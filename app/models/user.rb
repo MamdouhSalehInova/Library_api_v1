@@ -1,5 +1,4 @@
 class User < ApplicationRecord
-  #include Devise::JWT::RevocationStrategies::JTIMatcher
 
   devise :database_authenticatable, :registerable, :validatable,
   :recoverable, :rememberable, :confirmable
@@ -12,7 +11,15 @@ class User < ApplicationRecord
 
 
   def generate_jwt
-    JWT.encode({id: id, exp: 60.days.from_now.to_i}, Rails.application.secrets.secret_key_base)
+    JWT.encode({id: id, exp: 60.days.from_now.to_i}, Rails.application.credentials.secret_key_base)
+  end
+
+  def revoke_jwt(token)
+    Session.find_by(token: token)&.destroy
+  end
+
+  def jwt_revoked?(token)
+    Session.exists?(jwt: token)
   end
 
   private

@@ -20,7 +20,6 @@ class UserMailer < ApplicationMailer
 
   def otp_send(user)
     @user = user
-
     mail to: @user.email, subject: "Your one time password"
   end
 

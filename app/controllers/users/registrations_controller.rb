@@ -1,14 +1,13 @@
-class Users::RegistrationsController < Devise::RegistrationsController
+class Users::RegistrationsController < ApplicationController
   respond_to :json
 
   def create
-    user = User.new(sign_up_params)
-
+    user = User.new(email: params[:user][:email], password: params[:user][:password])
     if user.save
-      token = user.generate_jwt
-      render json: token.to_json
+      #token = user.generate_jwt
+      render json: {message: "Signed up successfully"}
     else
-      render json: { errors: { 'email or password' => ['is invalid'] } }, status: :unprocessable_entity
+      render json: user.errors, status: :unprocessable_entity
     end
   end
   

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_06_05_164842) do
+ActiveRecord::Schema[7.1].define(version: 2024_06_09_143510) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -66,6 +66,15 @@ ActiveRecord::Schema[7.1].define(version: 2024_06_05_164842) do
     t.index ["book_id"], name: "index_reviews_on_book_id"
   end
 
+  create_table "sessions", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "token"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["token"], name: "index_sessions_on_token"
+    t.index ["user_id"], name: "index_sessions_on_user_id"
+  end
+
   create_table "shelves", force: :cascade do |t|
     t.string "name"
     t.integer "max_capacity"
@@ -86,16 +95,15 @@ ActiveRecord::Schema[7.1].define(version: 2024_06_05_164842) do
     t.string "unconfirmed_email"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "jti", null: false
     t.boolean "is_admin", default: false
     t.integer "otp_code"
     t.boolean "is_verified", default: false
     t.index ["email"], name: "index_users_on_email", unique: true
-    t.index ["jti"], name: "index_users_on_jti", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
   add_foreign_key "books_categories", "books"
   add_foreign_key "books_categories", "categories"
   add_foreign_key "reviews", "books"
+  add_foreign_key "sessions", "users"
 end
