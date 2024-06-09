@@ -10,7 +10,7 @@ class CategoriesController < ApplicationController
 
   def show
     @category = Category.find(params[:id])
-    render json: {data: {category: @category.as_serialized_json, books: @category.books.map{|book| book.as_serialized_json}}}
+    render json: {data: {category: {data: @category.as_serialized_json, books: @category.books.map{|book| book.as_serialized_json}}}}
   end
 
   def new

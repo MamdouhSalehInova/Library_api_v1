@@ -5,12 +5,12 @@ class AuthorsController < ApplicationController
 
   def index
     @authors = Author.page(params[:page]).order(:name)
-    render json: {data: @authors.map{|author| author.as_serialized_json}}
+    render json: {data: { authors: @authors.map{|author| author.as_serialized_json}}}
   end
 
   def show
     @author = Author.find(params[:id])
-    render json: {data: {author: @author.as_serialized_json, books: @author.books.map{|book| book.as_serialized_json}}}
+    render json: {data: {author: {data: @author.as_serialized_json, books: @author.books.map{|book| book.as_serialized_json}}}}
   end
 
   def new

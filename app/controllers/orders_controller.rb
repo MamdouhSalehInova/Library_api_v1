@@ -25,16 +25,16 @@ class OrdersController < ApplicationController
   def accept
     @order = Order.find(params[:order_id])
     @book = @order.book
-    @error = "You already managed this order" if @order.status != "pending"
+    @error = "You've already managed this order" if @order.status != "pending"
     if @error.present?
-      render json: @error
+      render json: {message: @error}, status: :precondition_failed
     else
       if @book.is_available && @order.present?
         @order.accept
         render json: {message: "Accepted Order"}
       else
         error = "Out of stock for #{@book.title}"
-        render json: error, status: :precondition_failed
+        render json: {message: error}, status: :precondition_failed
       end
     end
   end
@@ -44,7 +44,7 @@ class OrdersController < ApplicationController
     @order = Order.find(params[:order_id])
     @error = "You've already managed this order" if @order.status != "pending"
     if @error.present?
-      render json: @error
+      render json: {message: @error}
     else
       @order.reject
       render json: {message: "Rejected Order"}
@@ -56,7 +56,7 @@ class OrdersController < ApplicationController
     @order = Order.find(params[:order_id])
     check_return_errors()
     if @error.present?
-      render json: @error, status: :precondition_failed
+      render json: {message: @error}, status: :precondition_failed
     else
     @order.return
     render json: {message: "Returned book to shelf"}
@@ -75,10 +75,10 @@ class OrdersController < ApplicationController
   def create
     check_create_errors()
     if @error.present?
-      render json: @error, status: :precondition_failed
+      render json: {message: @error}, status: :precondition_failed
     else
       @order = Order.new(order_params)
-      @order.update(user_id: current_user.id, book_id: @book.id )
+      @order.update(user_id: current_user.id, book_id: @book.id)
      if @order.save
         render json: @order
      else
@@ -89,15 +89,15 @@ class OrdersController < ApplicationController
 
   def update
       if @order.update(order_params)
-        render json: "Order updated successfully"
+        render json: {message: "Order updated successfully"}, status: :ok
       else
-        render json: "Order failed to update"
+        render json: @order.errors
       end
   end
 
   def destroy
     if @order.destroy!
-      render json: "Order deleted succesfully", status: :ok
+      render json: {message:"Order deleted succesfully"}, status: :ok
     end
   end
 

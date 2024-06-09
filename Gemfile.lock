@@ -299,6 +299,7 @@ DEPENDENCIES
   devise-two-factor
   goldiloader (~> 5.2)
   jsonapi-serializer
+  jwt (~> 2.8)
   kaminari (~> 1.2)
   pg (~> 1.1)
   puma (>= 5.0)

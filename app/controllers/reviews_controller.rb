@@ -51,7 +51,7 @@ class ReviewsController < ApplicationController
       render json: {message: "Review deleted succefully"}
     else
       error = "you cant delete other's reviews"
-      render json: error, status: :forbidden
+      render json: {message: error}, status: :forbidden
     end
   end
 

@@ -7,7 +7,11 @@ class Users::SessionsController < Devise::SessionsController
     self.resource = warden.authenticate!(auth_options)
     @user.update(otp_code: SecureRandom.rand(10000..99999))
     SendOtpService.new(@user).call
-    render json: {message: "Otp Sent To #{@user.email}"}
+    render json: {
+    message: "Otp Sent To #{@user.email}", 
+    user: @user.as_serialized_json,
+    access_token: request.env['warden-jwt_auth.token']
+  }
   end
 
   #destroys the current session and sets the user's is_verified attribute to false

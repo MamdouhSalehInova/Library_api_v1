@@ -38,7 +38,6 @@ gem "rack-cors"
 gem 'devise'
 gem 'devise-jwt'
 gem 'jsonapi-serializer'
-
 gem 'devise-two-factor'
 gem 'simple_form'
 gem 'active_model_serializers'
@@ -55,10 +54,8 @@ end
 
 gem "sidekiq", "~> 7.2"
 gem 'sidekiq-scheduler', '~> 5.0', '>= 5.0.3'
-
 gem "kaminari", "~> 1.2"
-
-
 gem "rexml", "~> 3.2"
-
 gem "goldiloader", "~> 5.2"
+
+gem "jwt", "~> 2.8"

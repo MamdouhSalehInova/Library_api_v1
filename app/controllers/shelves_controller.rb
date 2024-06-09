@@ -11,7 +11,7 @@ class ShelvesController < ApplicationController
   def show
     @shelf = Shelf.find(params[:id])
     @books = Book.where(shelf_id: @shelf.id)
-    render json: {data: {shelf: @shelf.as_serialized_json, books: @shelf.books.map{|book| book.as_serialized_json}}}
+    render json: {data: {shelf: {data: @shelf.as_serialized_json, books: @shelf.books.map{|book| book.as_serialized_json}}}}
   end
 
   def new
@@ -37,7 +37,7 @@ class ShelvesController < ApplicationController
 
   def destroy
     if @shelf.destroy!
-      render json: {message: "success"}
+      render json: {message: "Shelf deleted successfully"}
     end
   end
 

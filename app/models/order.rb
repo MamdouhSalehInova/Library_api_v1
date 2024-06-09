@@ -1,7 +1,7 @@
 class Order < ApplicationRecord
 
   #callbacks
-  after_create :notify_admin
+  after_create_commit :notify_admin
 
   #associations
   belongs_to :user
@@ -12,14 +12,12 @@ class Order < ApplicationRecord
   validates :book_id, presence: true
   validates :return_date, presence: true
 
-  enum :status, [ :pending, :accepted, :rejected, :returned, :late ]
+  enum status: { pending: 0, accepted: 1, rejected: 2, returned: 3, late: 4 }
 
   #Send an email to all admins when a new order is created
   def notify_admin
     @admins = User.where(is_admin: true)
-    @admins.each do |admin|
-      AdminMailer.new_order(admin).deliver_later
-      end
+    AdminNotificationJob.perform_later
   end
 
   def accept

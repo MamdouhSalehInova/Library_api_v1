@@ -4,8 +4,6 @@ class Shelf < ApplicationRecord
 
   #validations
   validates :max_capacity, presence: true
-  validates :name, presence: true
-
- 
+  validates :name, presence: true, uniqueness: true
   
 end

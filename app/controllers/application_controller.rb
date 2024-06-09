@@ -9,7 +9,7 @@ class ApplicationController < ActionController::API
   def admin?
     unless current_user and current_user.is_admin?
       error = "no access"
-      render json: error, status: :unauthorized
+      render json: {message: error}, status: :unauthorized
     end
   end
 
@@ -18,9 +18,11 @@ class ApplicationController < ActionController::API
     if current_user
       unless current_user and current_user.is_verified?
       error = "you need to verify your otp first"
-      render json: error, status: :unauthorized
+      render json: {message: error}, status: :unauthorized
       end
     end
   end
+
+  
 
 end

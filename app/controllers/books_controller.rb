@@ -1,6 +1,6 @@
 class BooksController < ApplicationController
   before_action :set_book, only: %i[ show update destroy ]
-  before_action :authenticate_user!, except: [:show, :index]
+  before_action :authenticate_user!, except: [:index]
   before_action :verified?
   before_action :admin?, only: [ :destroy, :create, :update]
 
@@ -11,7 +11,7 @@ class BooksController < ApplicationController
 
   def show
     @book = Book.find(params[:id])
-    render json: @book.as_serialized_json
+    render json: {data: {book: @book.as_serialized_json}}
   end
 
   def create
@@ -35,7 +35,7 @@ class BooksController < ApplicationController
       @error = "Shelf #{@new_shelf.name} is out of storage" if @new_shelf.current_capacity == @new_shelf.max_capacity 
     end
     if @error.present?
-      render json: @error, status: :precondition_failed
+      render json: {message: @error}, status: :precondition_failed
     else
       if @book.update(book_params)
         render json: @book, status: :ok
@@ -47,7 +47,7 @@ class BooksController < ApplicationController
 
   def destroy
     if @book.destroy!
-      render json: "Book was deleted successfuly", status: :ok
+      render json: {message: "Book was deleted successfuly"}, status: :ok
     end
   end
 
