@@ -57,5 +57,5 @@ gem 'sidekiq-scheduler', '~> 5.0', '>= 5.0.3'
 gem "kaminari", "~> 1.2"
 gem "rexml", "~> 3.2"
 gem "goldiloader", "~> 5.2"
-
+gem "actionpack", ">= 7.1.3.4"
 gem "jwt", "~> 2.8"
