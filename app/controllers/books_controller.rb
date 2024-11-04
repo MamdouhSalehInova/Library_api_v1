@@ -13,7 +13,7 @@ class BooksController < ApplicationController
     @book = Book.find(params[:id])
     render json: {data: {book: @book.as_serialized_json}}
   end
-
+# crates a book
   def create
     @book = Book.new(book_params)
       @shelf = @book.shelf
